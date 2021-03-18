@@ -1,11 +1,27 @@
 ﻿using System;
-using System.Linq;
+using System.Timers;
 
 namespace RssAnalyzerDotNet
 {
     class Program
     {
         static void Main(string[] args)
+        {
+            
+            const double intervalEveryDay = 24 * 60 * 60 * 1000; // Day interval
+            // const double intervalEveryDay = 60 * 1000; // Minute interval
+            Timer checkTime = new Timer(intervalEveryDay);
+            checkTime.Elapsed += new ElapsedEventHandler(checkForTime_Elapsed);
+            checkTime.Enabled = true;
+
+            checkForTime_Elapsed(null,  null);
+            
+            Console.WriteLine();
+            Console.WriteLine("Press any key to close");
+            Console.ReadKey();
+        }
+
+        static void checkForTime_Elapsed(object sender, ElapsedEventArgs e)
         {
             var rssFeed = new RssFeed();
             // Pass companyName in args
@@ -21,15 +37,15 @@ namespace RssAnalyzerDotNet
 
             var result = rssFeed.ParseRssDotNet(rssLink);
             DateTime[] updates = new DateTime[] { };
-            
+
             if (result != null)
             {
                 foreach (var element in result.Items)
                 {
                     Console.WriteLine($"Date: {element.PublishDate.DateTime}");
                     Console.WriteLine($"Title: {element.Title.Text}");
-                    
-                    //updates.Append(element.PublishDate.DateTime.ToString());
+
+                    //updates.Append(element.PublishDate.DateTime);
                 }
             }
 
@@ -37,10 +53,6 @@ namespace RssAnalyzerDotNet
             //{
             //    Console.WriteLine($"Out of date");
             //}
-
-            Console.WriteLine();
-            Console.WriteLine("Press any key to close");
-            Console.ReadKey();
         }
     }
 }
